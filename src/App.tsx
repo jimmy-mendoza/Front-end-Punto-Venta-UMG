@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Categorias from "./pages/Categoria";
 import Clientes from "./pages/Clientes";
 import Productos from "./pages/Productos";
+import Reportes from "./pages/Reportes";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/categorias" element={<Categorias />} />
         <Route path="/clientes" element={<Clientes />} />
         <Route path="/productos" element={<Productos />} />
+        <Route path="/reportes" element={<Reportes />} />
         <Route
           path="*"
           element={<div className="p-6">Página no encontrada</div>}

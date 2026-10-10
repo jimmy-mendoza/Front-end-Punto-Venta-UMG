@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { Package, Tags, Users } from "lucide-react";
+import { FileText, Package, Tags, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/categorias", label: "Categorías", icon: Tags },
   { to: "/clientes", label: "Clientes", icon: Users },
   { to: "/productos", label: "Productos", icon: Package },
+  { to: "/reportes", label: "Reportes", icon: FileText },
 ];
 
 function Navbar() {
