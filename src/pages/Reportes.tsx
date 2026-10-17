@@ -7,9 +7,13 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-
-import { listarProductosActivos } from "../services/productoService";
+import { listarPedidosClienteDetalle } from "../services/pedidoService";
+import {
+  listarProductosActivos,
+  listarProductosConCategoria,
+} from "../services/productoService";
 import { listarCategoriasActivas } from "../services/categoriaService";
+import { listarPedidosConCliente } from "../services/pedidoService";
 import type { Producto } from "../types/producto";
 import type { Categoria } from "../types/categoria";
 import {
@@ -17,7 +21,9 @@ import {
   descargarPDF,
   pdfCategorias,
   pdfProductos,
-  pdfProductosYCategorias,
+  pdfProductosConCategoria,
+  pdfPedidosCliente,
+  pdfPedidosClienteDetalle,
 } from "@/lib/reportesPdf";
 
 // Importaciones de shadcn/ui
@@ -37,7 +43,21 @@ const filtroInicial = {
   precioMax: "",
   soloConStock: false,
 };
-
+const reportePedidoClienteDetalle = async () => {
+  try {
+    const { data } = await listarPedidosClienteDetalle();
+    if (data.length === 0)
+      return avisar("No hay pedidos para el reporte", true);
+    descargarPDF(
+      pdfPedidosClienteDetalle(data),
+      "reporte_pedido_cliente_detalle.pdf",
+    );
+    avisar("Reporte de pedidos por cliente (detalle) generado");
+  } catch (error) {
+    console.error("Error al obtener el detalle de pedidos", error);
+    avisar("No se pudo obtener el reporte desde el servidor", true);
+  }
+};
 function Reportes() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -120,14 +140,33 @@ function Reportes() {
     avisar("Reporte de categorías generado");
   };
 
-  const reporteGeneral = () => {
-    if (productos.length === 0 && categorias.length === 0)
-      return avisar("No hay datos para el reporte", true);
-    descargarPDF(
-      pdfProductosYCategorias(productos, categorias, mapa),
-      "reporte_productos_categorias.pdf",
-    );
-    avisar("Reporte de productos y categorías generado");
+  const reporteProductosConCategoria = async () => {
+    try {
+      const { data } = await listarProductosConCategoria();
+      if (data.length === 0)
+        return avisar("No hay productos para el reporte", true);
+      descargarPDF(
+        pdfProductosConCategoria(data),
+        "reporte_productos_categorias.pdf",
+      );
+      avisar("Reporte de productos con categoría generado");
+    } catch (error) {
+      console.error("Error al obtener productos con categoría", error);
+      avisar("No se pudo obtener el reporte desde el servidor", true);
+    }
+  };
+
+  const reportePedidoCliente = async () => {
+    try {
+      const { data } = await listarPedidosConCliente();
+      if (data.length === 0)
+        return avisar("No hay pedidos para el reporte", true);
+      descargarPDF(pdfPedidosCliente(data), "reporte_pedido_cliente.pdf");
+      avisar("Reporte de pedidos por cliente generado");
+    } catch (error) {
+      console.error("Error al obtener pedidos con cliente", error);
+      avisar("No se pudo obtener el reporte desde el servidor", true);
+    }
   };
 
   const reportePorCategoria = () => {
@@ -216,10 +255,22 @@ function Reportes() {
             Reporte Categoría PDF
           </button>
           <button
-            onClick={reporteGeneral}
-            className={`${claseBoton} hover:bg-indigo-700`}
+            onClick={reporteProductosConCategoria}
+            className={`${claseBoton} hover:bg-amber-700`}
           >
-            Productos y Categorías a PDF
+            Productos con Categoría a PDF
+          </button>
+          <button
+            onClick={reportePedidoCliente}
+            className={`${claseBoton} hover:bg-rose-700`}
+          >
+            Reporte Pedido Cliente a PDF
+          </button>
+          <button
+            onClick={reportePedidoClienteDetalle}
+            className={`${claseBoton} hover:bg-violet-700`}
+          >
+            Reporte Pedido Cliente Detalle a PDF
           </button>
         </CardContent>
       </Card>

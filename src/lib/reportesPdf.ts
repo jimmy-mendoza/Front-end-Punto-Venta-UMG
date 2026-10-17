@@ -2,6 +2,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { Producto } from "../types/producto";
 import type { Categoria } from "../types/categoria";
+import type { ProductoCategoria } from "../types/productoCategoria";
+import type { PedidoCliente } from "../types/pedidoCliente";
+import type { PedidoClienteDetalle } from "../types/pedidoClienteDetalle";
 
 export type MapaCategorias = Map<number, string>;
 
@@ -105,3 +108,65 @@ export const pdfProductosYCategorias = (
 
 export const descargarPDF = (doc: jsPDF, nombreArchivo: string) =>
   doc.save(nombreArchivo);
+
+export const pdfProductosConCategoria = (datos: ProductoCategoria[]) => {
+  const doc = new jsPDF();
+  doc.text("Reporte de Productos con su Categoría", 14, 15);
+  autoTable(doc, {
+    head: [["ID", "Producto", "Categoría"]],
+    body: datos.map((d) => [
+      d.idProducto,
+      d.nombreProducto,
+      d.categoriaProducto,
+    ]),
+    startY: 20,
+  });
+  return doc;
+};
+
+const formatearFecha = (valor: string | number) =>
+  new Date(valor).toLocaleDateString("es-GT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+export const pdfPedidosCliente = (datos: PedidoCliente[]) => {
+  const doc = new jsPDF();
+  doc.text("Reporte de Pedidos por Cliente", 14, 15);
+  autoTable(doc, {
+    head: [["Fecha Pedido", "Nombre Cliente"]],
+    body: datos.map((d) => [formatearFecha(d.fechaPedido), d.nombreCliente]),
+    startY: 20,
+  });
+  return doc;
+};
+
+export const pdfPedidosClienteDetalle = (datos: PedidoClienteDetalle[]) => {
+  const doc = new jsPDF({ orientation: "landscape" });
+  doc.text("Reporte de Pedidos por Cliente (Detalle)", 14, 15);
+  autoTable(doc, {
+    head: [
+      [
+        "Fecha Pedido",
+        "Cliente",
+        "Producto",
+        "Cantidad",
+        "Precio (Q)",
+        "Precio Unitario (Q)",
+        "SubTotal (Q)",
+      ],
+    ],
+    body: datos.map((d) => [
+      formatearFecha(d.fechaPedido),
+      d.nombreCliente,
+      d.nombreProducto,
+      d.cantidad,
+      Number(d.precio).toFixed(2),
+      Number(d.precioUnitario).toFixed(2),
+      Number(d.subtotal).toFixed(2),
+    ]),
+    startY: 20,
+  });
+  return doc;
+};
